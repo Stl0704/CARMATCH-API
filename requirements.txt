@@ -1,0 +1,20 @@
+# Framework principal
+Django>=5.0,<6.0
+djangorestframework>=3.15,<3.16
+
+# Base de datos (PostgreSQL en GCP)
+psycopg2-binary>=2.9,<3.0
+
+# Seguridad y utilidades
+django-cors-headers>=4.3,<5.0
+python-dotenv>=1.0,<2.0
+
+# Autenticación y manejo de tokens (opcional pero recomendado)
+djangorestframework-simplejwt>=5.3,<6.0
+
+# Validaciones extra
+django-filter>=24.3,<25.0
+
+# Tests
+pytest>=8.3,<9.0
+pytest-django>=4.9,<5.0
