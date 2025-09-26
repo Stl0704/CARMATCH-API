@@ -16,8 +16,13 @@ import os
 from dotenv import load_dotenv
 
 
-load_dotenv()
-BASE_DIR = Path(__file__).resolve().parent.parent
+
+BASE_DIR = Path(__file__).resolve().parent.parent          # CARMATCH-API/carmatch_api
+REPO_DIR = BASE_DIR.parent                                 # CARMATCH-API
+
+# Carga ambos por si acaso (no molesta)
+load_dotenv(BASE_DIR / ".env", override=True)              # por si lo dejas junto a manage.py
+load_dotenv(REPO_DIR / ".env",  override=True)             # raíz del repo (tu caso actual)
 
 
 # Quick-start development settings - unsuitable for production
@@ -50,13 +55,13 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 
