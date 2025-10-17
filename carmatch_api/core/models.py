@@ -351,3 +351,20 @@ class ClickOut(models.Model):
 
     def __str__(self) -> str:
         return f"Click on {self.offer} at {self.timestamp.isoformat()}"
+
+    class ProductImage(models.Model):
+
+        """Imagen obtenida de las tiendas."""
+
+    product = models.ForeignKey(
+        Product, related_name='images', on_delete=models.CASCADE)
+    url = models.URLField()
+    is_primary = models.BooleanField(default=False)
+    alt_text = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = [('product', 'url')]
+
+    def __str__(self):
+        return f"{self.product.name} image"
