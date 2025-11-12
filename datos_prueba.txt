@@ -1,0 +1,168 @@
+-- ============================================
+-- CARMATCH-API: Seed demo (50 productos + 50 ofertas con precios)
+-- Ejecutar en pgAdmin 4 conectado a carmatch_db
+-- Idempotente: puedes re-ejecutar sin duplicar ofertas/productos básicos.
+-- ============================================
+
+BEGIN;
+
+-- ==========
+-- BRANDS
+-- ==========
+INSERT INTO core_brand (name) VALUES
+  ('Bosch'), ('NGK'), ('Michelin'), ('Mann-Filter')
+ON CONFLICT (name) DO NOTHING;
+
+-- ==========
+-- CATEGORIES
+-- (no hay unique en name, así que evitamos duplicar con NOT EXISTS)
+-- ==========
+INSERT INTO core_category (name, parent_id)
+SELECT v.name, NULL
+FROM (VALUES ('Filtros'), ('Bujías'), ('Neumáticos'), ('Aceites')) AS v(name)
+WHERE NOT EXISTS (
+  SELECT 1 FROM core_category c WHERE c.name = v.name
+);
+
+-- ==========
+-- STORES
+-- unique_together: (name, website)
+-- ==========
+INSERT INTO core_store (name, website, reputation, payment_methods, created_at)
+VALUES
+  ('Autoplanet',     'https://www.autoplanet.cl',   4.50, '["TARJETA","TRANSFERENCIA"]'::jsonb, NOW()),
+  ('Mercado Libre',  'https://www.mercadolibre.cl', 4.20, '["TARJETA"]'::jsonb,                 NOW()),
+  ('Repuestera X',   'https://www.repuesterax.cl',  4.00, '["TARJETA","EFECTIVO"]'::jsonb,      NOW()),
+  ('Neumarket',      'https://www.neumarket.cl',    4.10, '["TARJETA","TRANSFERENCIA"]'::jsonb, NOW())
+ON CONFLICT (name, website) DO NOTHING;
+
+-- ============================
+-- 50 PRODUCTOS DE PRUEBA
+-- ============================
+-- Distribuye brand/category de forma cíclica.
+-- Evita duplicar por (name, sku) simple: si ya existen, no los vuelve a crear.
+WITH brand_ct AS (SELECT COUNT(*) AS cnt FROM core_brand),
+     cat_ct   AS (SELECT COUNT(*) AS cnt FROM core_category),
+     new_products AS (
+       SELECT
+         /* category_id cíclica */
+         (SELECT id FROM core_category ORDER BY id
+            LIMIT 1 OFFSET ((gs - 1) % (SELECT cnt FROM cat_ct))) AS category_id,
+         /* brand_id cíclica */
+         (SELECT id FROM core_brand ORDER BY id
+            LIMIT 1 OFFSET ((gs - 1) % (SELECT cnt FROM brand_ct))) AS brand_id,
+         FORMAT('Repuesto Demo %s', gs) AS name,
+         FORMAT('SKU-%s', gs) AS sku,
+         'Producto de prueba generado automáticamente.' AS description,
+         12::integer AS warranty_months,
+         NOW() - ((RANDOM()*30)::int || ' days')::interval AS created_at
+       FROM generate_series(1, 50) AS gs
+     )
+INSERT INTO core_product (category_id, brand_id, name, sku, description, warranty_months, created_at)
+SELECT np.category_id, np.brand_id, np.name, np.sku, np.description, np.warranty_months, np.created_at
+FROM new_products np
+WHERE NOT EXISTS (
+  SELECT 1 FROM core_product p WHERE p.name = np.name AND p.sku = np.sku
+);
+
+-- (Opcional) Agrega especificaciones para los primeros 10 productos SIN duplicar:
+INSERT INTO core_specification (product_id, key, value, unit)
+SELECT p.id, 'Medida', FORMAT('%s', 100 + p.id), 'mm'
+FROM core_product p
+WHERE NOT EXISTS (
+  SELECT 1 FROM core_specification s
+  WHERE s.product_id = p.id AND s.key = 'Medida' AND s.value = FORMAT('%s', 100 + p.id) AND s.unit = 'mm'
+)
+ORDER BY p.id
+LIMIT 10;
+
+-- ============================
+-- 50 OFERTAS DE PRUEBA + 2 PRECIOS POR OFERTA
+-- ============================
+-- URL determinística por (product_id, store_id) para no duplicar al re-ejecutar.
+-- unique_together: (product, store, url) => si ya existe la misma combinación, no inserta.
+WITH prod AS (
+  SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS rn
+  FROM core_product
+  ORDER BY id
+  LIMIT 50
+),
+stores AS (
+  SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS rn, (SELECT COUNT(*) FROM core_store) AS total
+  FROM core_store
+),
+picked AS (
+  -- Asigna tienda cíclica por fila de producto
+  SELECT
+    p.id AS product_id,
+    (SELECT s.id FROM stores s WHERE s.rn = ((p.rn - 1) % (SELECT total FROM stores LIMIT 1)) + 1) AS store_id,
+    p.rn
+  FROM prod p
+),
+ins_offers AS (
+  INSERT INTO core_offerproduct
+    (product_id, store_id, url, current_availability, return_policy, estimated_delivery,
+     estimated_shipping_cost, created_at)
+  SELECT
+    product_id,
+    store_id,
+    /* URL determinística (sin timestamp) para evitar duplicar en reruns */
+    concat('https://demo.store/oferta-', product_id::text, '-', store_id::text) AS url,
+    'disponible',
+    'Cambios y devoluciones dentro de 10 días',
+    '2-5 días hábiles',
+    ((RANDOM() * 5990)::int),
+    NOW()
+  FROM picked
+  ON CONFLICT DO NOTHING
+  RETURNING id, created_at
+),
+old_prices AS (
+  -- Precio antiguo (hace 7 días)
+  INSERT INTO core_pricehistorical (offer_id, price, currency, price_before, discount_pct, valid_at)
+  SELECT
+    o.id,
+    (ROUND(8000 + RANDOM() * 52000))::numeric AS price_old,
+    'CLP',
+    NULL,
+    NULL,
+    o.created_at - INTERVAL '7 days'
+  FROM ins_offers o
+  RETURNING offer_id, price AS price_old
+)
+-- Precio reciente (ayer), con descuento respecto al anterior
+INSERT INTO core_pricehistorical (offer_id, price, currency, price_before, discount_pct, valid_at)
+SELECT
+  op.offer_id,
+  GREATEST(3000, (op.price_old - (ROUND(RANDOM() * 4000))::numeric)) AS price_new,
+  'CLP',
+  op.price_old,
+  NULL,
+  NOW() - INTERVAL '1 day'
+FROM old_prices op;
+
+-- ============================
+-- Resumen final
+-- ============================
+-- (te muestra totales actuales)
+SELECT
+  (SELECT COUNT(*) FROM core_product)          AS total_products,
+  (SELECT COUNT(*) FROM core_offerproduct)     AS total_offers,
+  (SELECT COUNT(*) FROM core_pricehistorical)  AS total_prices;
+
+COMMIT;
+
+-- ============================
+-- Consultas de verificación (opcionales)
+-- ============================
+-- SELECT id, name, sku FROM core_product ORDER BY id LIMIT 10;
+-- SELECT o.id, p.name AS product, s.name AS store, o.url
+-- FROM core_offerproduct o
+-- JOIN core_product p ON p.id = o.product_id
+-- JOIN core_store   s ON s.id = o.store_id
+-- ORDER BY o.id DESC
+-- LIMIT 10;
+-- SELECT offer_id, price, currency, valid_at
+-- FROM core_pricehistorical
+-- ORDER BY valid_at DESC
+-- LIMIT 10;

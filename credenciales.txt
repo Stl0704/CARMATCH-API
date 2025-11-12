@@ -1,0 +1,2 @@
+machine@ejemplo.com
+admin1234
