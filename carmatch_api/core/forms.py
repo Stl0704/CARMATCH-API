@@ -1,0 +1,10 @@
+# core/forms.py
+from django import forms
+
+class LoginForm(forms.Form):
+    email = forms.EmailField(label="Correo", widget=forms.EmailInput(attrs={
+        "class": "form-control", "placeholder": "tucorreo@dominio.com"
+    }))
+    password = forms.CharField(label="Contraseña", widget=forms.PasswordInput(attrs={
+        "class": "form-control", "placeholder": "********"
+    }))

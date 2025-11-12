@@ -87,16 +87,18 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
 
 
+
 class OfferProductSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
-    store = StoreSerializer(read_only=True)
+    store   = StoreSerializer(read_only=True)
+    latest_price = serializers.DecimalField(max_digits=14, decimal_places=2, read_only=True)
 
     class Meta:
         model = OfferProduct
         fields = [
             'id', 'product', 'store', 'url', 'current_availability',
             'return_policy', 'estimated_delivery', 'estimated_shipping_cost',
-            'created_at'
+            'created_at', 'latest_price'
         ]
 
 

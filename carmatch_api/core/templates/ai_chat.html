@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Agente AI | CarMatch{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+  .chat-wrap { height: calc(100vh - 170px); }
+  .chat-sidebar { border-right: 1px solid #e5e7eb; }
+  .chat-body { display:flex; flex-direction:column; height:100%; }
+  .chat-log { flex:1; overflow:auto; padding: 1rem; background:#f9fafb; }
+  .chat-input { border-top: 1px solid #e5e7eb; padding:.75rem; background:#fff; }
+  .bubble { max-width: 75%; padding: .6rem .8rem; border-radius: 14px; margin-bottom:.5rem; position:relative; }
+  .bubble.user { margin-left:auto; background:#dbeafe; }
+  .bubble.bot  { margin-right:auto; background:#eef2ff; }
+  .bubble .meta { font-size:.75rem; color:#6b7280; margin-top:.25rem; }
+  .bubble a { text-decoration: none; }
+  .pill { display:inline-block; padding:.25rem .5rem; border-radius:999px; font-size:.8rem; background:#f3f4f6; margin-right:.5rem; }
+  .sidebar-item { cursor:pointer; padding:.5rem .75rem; border-radius:.5rem; }
+  .sidebar-item.active, .sidebar-item:hover { background:#eef2ff; }
+  .avatar { width:36px; height:36px; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; background:#0b1221; color:#fff; font-weight:700; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <h1 class="h4 mb-3"><i class="bi bi-robot me-2"></i>Agente AI</h1>
+  <div class="row chat-wrap">
+    <!-- Sidebar -->
+    <div class="col-12 col-md-3 chat-sidebar mb-3 mb-md-0">
+      <div class="d-flex flex-column gap-2">
+        <div class="text-uppercase text-muted small">Modos</div>
+        <div class="sidebar-item active" data-mode="comercial">
+          <span class="pill">Comercial</span>
+          <div class="small text-muted">Búsqueda de ofertas, precios y tiendas</div>
+        </div>
+        <div class="sidebar-item" data-mode="tecnico">
+          <span class="pill">Técnico</span>
+          <div class="small text-muted">Compatibilidad, especificaciones y ayuda técnica</div>
+        </div>
+        <hr>
+        <div class="text-uppercase text-muted small">Atajos</div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="pill">Toyota</span>
+          <span class="pill">205/55 R16</span>
+          <span class="pill">Filtro aceite</span>
+          <span class="pill">Batería</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="col-12 col-md-9">
+      <div class="card chat-body shadow-sm">
+        <div class="chat-log" id="chatLog">
+          <!-- Mensaje de bienvenida del bot -->
+          <div class="d-flex align-items-start gap-2 bubble bot">
+            <div class="avatar">AI</div>
+            <div>
+              <div class="fw-semibold mb-1">¿Qué necesitas que te ayude?</div>
+              <div class="meta">Agente • ahora</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input">
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary"><i class="bi bi-plus-lg"></i></button>
+            <input id="msg" class="form-control" placeholder="Escribe tu mensaje…">
+            <button id="send" class="btn btn-primary"><i class="bi bi-send me-1"></i>Enviar</button>
+          </div>
+          <div class="form-text">* Esta es una demo visual. No hay conexión a IA aún.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const chat = document.getElementById('chatLog');
+  const input = document.getElementById('msg');
+  const send = document.getElementById('send');
+  const modeEls = document.querySelectorAll('.sidebar-item');
+
+  // cambia visualmente el modo
+  modeEls.forEach(el => {
+    el.addEventListener('click', () => {
+      modeEls.forEach(e => e.classList.remove('active'));
+      el.classList.add('active');
+    });
+  });
+
+  function scrollBottom() { chat.scrollTop = chat.scrollHeight; }
+
+  function addUser(text) {
+    const html = `
+      <div class="d-flex align-items-start gap-2 bubble user">
+        <div>
+          <div>${text}</div>
+          <div class="meta">Tú • ahora</div>
+        </div>
+        <div class="avatar" style="background:#f3f4f6;color:#111827;">{{ request.session.user_name|default:"?"|first|upper }}</div>
+      </div>`;
+    chat.insertAdjacentHTML('beforeend', html);
+    scrollBottom();
+  }
+
+  function addBot(textHtml) {
+    const html = `
+      <div class="d-flex align-items-start gap-2 bubble bot">
+        <div class="avatar">AI</div>
+        <div>
+          <div>${textHtml}</div>
+          <div class="meta">Agente • ahora</div>
+        </div>
+      </div>`;
+    chat.insertAdjacentHTML('beforeend', html);
+    scrollBottom();
+  }
+
+  // respuesta demo con links a Ofertas (filtro por texto via search)
+  function demoAnswer(query) {
+    const base = "{{ request.scheme }}://{{ request.get_host }}{% url 'ofertas_page' %}";
+    const url1 = base + "?search=" + encodeURIComponent("llantas toyota");
+    const url2 = base + "?search=" + encodeURIComponent(query || "");
+    const text = `
+      Claro, aquí tienes unas ofertas para lo que necesitas:
+      <div class="mt-2">
+        <a class="btn btn-sm btn-outline-primary me-2" href="${url1}" target="_blank" rel="noopener">Ver llantas para Toyota</a>
+        <a class="btn btn-sm btn-outline-primary" href="${url2}" target="_blank" rel="noopener">Resultados relacionados</a>
+      </div>`;
+    addBot(text);
+  }
+
+  function sendMsg() {
+    const val = (input.value || '').trim();
+    if (!val) return;
+    addUser(val);
+    input.value = '';
+    // demo: pequeña “latencia”
+    setTimeout(() => demoAnswer(val), 400);
+  }
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMsg();
+  });
+  send.addEventListener('click', sendMsg);
+})();
+</script>
+{% endblock %}

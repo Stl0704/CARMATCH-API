@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | CarMatch{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="text-center mb-4">Bienvenido</h1>
+  <div class="row g-3">
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Repuestos</h5>
+          <p class="text-muted">Explora repuestos disponibles vía API.</p>
+          <a class="btn btn-primary" href="{% url 'repuestos_page' %}">Ver repuestos</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Publicar</h5>
+          <p class="text-muted">Sube un nuevo producto/oferta.</p>
+          <button class="btn btn-outline-secondary" disabled>Próximamente</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Agente AI</h5>
+          <p class="text-muted">Asistencia para compatibilidad y precios.</p>
+          <button class="btn btn-outline-secondary" disabled>Próximamente</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Iniciar sesión | CarMatch</title>
+  <!-- Si ya tienes Bootstrap en tu base.html, puedes omitir esto -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #0f172a; } /* slate-900 */
+    .card { border: 0; border-radius: 1rem; }
+  </style>
+</head>
+<body class="d-flex align-items-center justify-content-center" style="min-height:100vh;">
+  <div class="container" style="max-width: 420px;">
+    <div class="card shadow-lg">
+      <div class="card-body p-4">
+        <div class="text-center mb-3">
+          <h1 class="h4 mb-1">CarMatch</h1>
+          <p class="text-muted m-0">Inicia sesión para continuar</p>
+        </div>
+
+        {% if messages %}
+          {% for m in messages %}
+            <div class="alert alert-{{ m.tags }} mb-3" role="alert">{{ m }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="{{ form.email.id_for_label }}" class="form-label">Correo</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              <div class="text-danger small">{{ form.email.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.password.id_for_label }}" class="form-label">Contraseña</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+              <div class="text-danger small">{{ form.password.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+        </form>
+
+        <div class="text-center mt-3">
+          <a href="#" class="small text-muted">¿Olvidaste tu contraseña?</a>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-white-50 mt-3 small">© {{ now|date:"Y" }} CarMatch</p>
+  </div>
+</body>
+</html>

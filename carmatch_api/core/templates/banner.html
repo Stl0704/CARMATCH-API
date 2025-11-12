@@ -1,0 +1,57 @@
+{% load static %}
+<header class="navbar navbar-expand-lg navbar-dark" style="background:#0b1221;">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand fw-semibold" href="{% url 'dashboard' %}">CarMatch</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topbar"
+            aria-controls="topbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="topbar">
+      {% with current=request.resolver_match.url_name|default:'' %}
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {% if current == 'dashboard' %}active{% endif %}"
+             href="{% url 'dashboard' %}">Inicio</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {% if current == 'repuestos_page' %}active{% endif %}"
+             href="{% url 'repuestos_page' %}">Repuestos</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {% if current == 'ofertas_page' %}active{% endif %}"
+             href="{% url 'ofertas_page' %}">Ofertas</a>
+        </li>
+
+        <li class="nav-item"><a class="nav-link" href="#">Publicar</a></li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'ai_chat' %}active{% endif %}"
+            href="{% url 'ai_chat' %}">Agente AI</a>
+        </li>
+
+                <!-- Administración: activo tanto en /admin/ como en /admin/fuentes/ -->
+        <li class="nav-item">
+          <a class="nav-link {% if current == 'admin_home' or current == 'admin_fuentes' %}active{% endif %}"
+             href="{% url 'admin_home' %}">Administración</a>
+        </li>
+      </ul>
+      {% endwith %}
+
+      <div class="d-flex align-items-center gap-2">
+        <div class="rounded-circle d-inline-flex justify-content-center align-items-center"
+             style="width:36px;height:36px;background:#f3f4f6;color:#111827;font-weight:700;">
+          {{ request.session.user_name|default:"?"|first|upper }}
+        </div>
+        <span class="text-white-50 small">{{ request.session.user_name|default:"Invitado" }}</span>
+        {% if request.session.user_id %}
+          <a class="btn btn-outline-light btn-sm ms-2" href="{% url 'logout' %}">Cerrar sesión</a>
+        {% else %}
+          <a class="btn btn-primary btn-sm ms-2" href="{% url 'login' %}">Iniciar sesión</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>

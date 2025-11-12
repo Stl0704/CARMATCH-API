@@ -1,0 +1,20 @@
+<footer class="bg-dark text-white-50 mt-auto">
+  <div class="container py-3 d-flex flex-column flex-md-row align-items-center justify-content-between gap-2">
+    <div class="small">
+      <span class="text-white fw-semibold">CarMatch</span>
+      • © {{ now|date:"Y" }}
+      • v{{ VERSION|default:"0.1.0" }}
+    </div>
+
+    <ul class="nav small">
+      <li class="nav-item"><a href="#" class="nav-link px-2 text-white-50">Términos</a></li>
+      <li class="nav-item"><a href="#" class="nav-link px-2 text-white-50">Privacidad</a></li>
+      <li class="nav-item">
+        <a href="mailto:soporte@carmatch.local" class="nav-link px-2 text-white-50">Contacto</a>
+      </li>
+      <li class="nav-item">
+        <span class="nav-link px-2 text-success">Sesión: {{ request.session.user_name|default:"Invitado" }}</span>
+      </li>
+    </ul>
+  </div>
+</footer>
