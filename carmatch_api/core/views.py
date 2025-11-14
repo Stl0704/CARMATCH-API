@@ -21,8 +21,8 @@ from django.db.models import OuterRef,Subquery,DecimalField
 from django.utils import timezone
 from django.conf import settings
 
-from .forms import LoginForm
-from .models import Product, OfferProduct,User,PriceHistorical
+from .forms import LoginForm, UserListingForm, RegisterForm
+from .models import Product, OfferProduct,User,PriceHistorical,UserListing
 # ---------- API ----------
 @api_view(["GET"])
 def ping(request):
@@ -63,6 +63,32 @@ def login_view(request):
                 return redirect("dashboard")
             messages.error(request, "Correo o contraseña inválidos.")
     return render(request, "login.html", {"form": form})
+
+@require_http_methods(["GET", "POST"])
+def register_view(request):
+    # Si ya está logueado, no tiene sentido registrarse de nuevo
+    if request.session.get("user_id"):
+        messages.info(request, "Ya tienes una sesión activa.")
+        return redirect("dashboard")
+
+    form = RegisterForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        name = form.cleaned_data["name"].strip()
+        email = form.cleaned_data["email"].strip().lower()
+        password = form.cleaned_data["password"]
+
+        # Usamos tu helper ya existente
+        create_user_with_password(name=name, email=email, raw_password=password, role="usuario")
+
+        messages.success(
+            request,
+            "Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión."
+        )
+        return redirect("login")
+
+    return render(request, "registrarse.html", {"form": form})
+
 
 def logout_view(request):
     request.session.flush()
@@ -107,6 +133,46 @@ class OfferProductViewSet(viewsets.ModelViewSet):
 def ofertas_page(request):
         # Renderiza plantilla que consulta /api/ofertas/
     return render(request, "ofertas.html")
+
+
+@require_http_methods(["GET", "POST"])
+def user_listings_view(request):
+    # Verificamos sesión (simple, como tu login actual)
+    user_id = request.session.get("user_id")
+    if not user_id:
+        messages.warning(request, "Debes iniciar sesión para publicar.")
+        return redirect("login")
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        request.session.flush()
+        messages.error(request, "Sesión inválida, vuelve a iniciar sesión.")
+        return redirect("login")
+
+    if request.method == "POST":
+        form = UserListingForm(request.POST, request.FILES)
+        if form.is_valid():
+            listing = form.save(commit=False)
+            listing.user = user
+            listing.save()
+            messages.success(request, "Publicación creada correctamente.")
+            return redirect("user_listings")
+    else:
+        form = UserListingForm()
+
+    publicaciones = UserListing.objects.filter(user=user).order_by("-created_at")
+
+    return render(
+        request,
+        "publicar.html",
+        {
+            "form": form,
+            "publicaciones": publicaciones,
+            "user_name": request.session.get("user_name"),
+        },
+    )
+
 
 
 # =========================

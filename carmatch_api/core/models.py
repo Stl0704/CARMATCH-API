@@ -351,3 +351,28 @@ class ClickOut(models.Model):
 
     def __str__(self) -> str:
         return f"Click on {self.offer} at {self.timestamp.isoformat()}"
+
+class UserListing(models.Model):
+    """Publicación propia del usuario (clasificado simple)."""
+
+    user = models.ForeignKey(
+        User, related_name='listings', on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    category = models.ForeignKey(
+        Category, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    stock = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=14, decimal_places=2)
+    photo = models.ImageField(
+        upload_to='user_listings/', null=True, blank=True
+    )
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self) -> str:
+        return f"{self.title} ({self.user.email})"

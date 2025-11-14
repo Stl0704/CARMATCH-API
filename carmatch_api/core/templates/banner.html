@@ -26,7 +26,12 @@
              href="{% url 'ofertas_page' %}">Ofertas</a>
         </li>
 
-        <li class="nav-item"><a class="nav-link" href="#">Publicar</a></li>
+        <li class="nav-item">
+          <a class="nav-link {% if current == 'user_listings' %}active{% endif %}"
+            href="{% url 'user_listings' %}">
+            Publicar
+          </a>
+        </li>
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'ai_chat' %}active{% endif %}"
             href="{% url 'ai_chat' %}">Agente AI</a>

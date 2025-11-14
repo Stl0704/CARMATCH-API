@@ -5,7 +5,7 @@ from .views import (
     ping, RepuestosViewSet, login_view, logout_view,
     ProductViewSet, OfferProductViewSet,
     n8n_flows, n8n_toggle_flow, n8n_run_now_view,
-    admin_fuentes_page,# <-- NUEVO
+    admin_fuentes_page,user_listings_view,register_view# <-- NUEVO
 )
 
 router = SimpleRouter()
@@ -25,4 +25,6 @@ urlpatterns = [
     path("n8n/flows/", n8n_flows, name="n8n_flows"),
     path("n8n/flows/<slug:flow_id>/toggle/", n8n_toggle_flow, name="n8n_toggle_flow"),
     path("n8n/flows/<slug:flow_id>/run-now/", n8n_run_now_view, name="n8n_run_now_flow"),
+    path("mis-publicaciones/", user_listings_view, name="user_listings"),
+    path("registrarse/", register_view, name="register"),
 ]
