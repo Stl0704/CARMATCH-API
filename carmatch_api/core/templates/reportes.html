@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reportes | CarMatch{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h4 m-0">Reportes</h1>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- INVENTARIO -->
+    <div class="col-12 col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Inventario</h5>
+          <p class="card-text small text-muted">
+            Exporta el catálogo de productos (inventario) con categoría, marca y otros datos básicos.
+          </p>
+          <div class="mt-auto">
+            <a href="{% url 'admin_report_inventory' %}" class="btn btn-outline-primary w-100">
+              Descargar Excel
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PUBLICACIONES -->
+    <div class="col-12 col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Publicaciones</h5>
+          <p class="card-text small text-muted">
+            Exporta las publicaciones realizadas por los usuarios (título, categoría, precio, usuario, fecha).
+          </p>
+          <div class="mt-auto">
+            <a href="{% url 'admin_report_publicaciones' %}" class="btn btn-outline-primary w-100">
+              Descargar Excel
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OFERTAS -->
+    <div class="col-12 col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Ofertas</h5>
+          <p class="card-text small text-muted">
+            Exporta las ofertas disponibles, con tienda, producto y último precio registrado.
+          </p>
+          <div class="mt-auto">
+            <a href="{% url 'admin_report_ofertas' %}" class="btn btn-outline-primary w-100">
+              Descargar Excel
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-3">
+    {% if is_edit %}Editar usuario{% else %}Nuevo usuario{% endif %}
+  </h2>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="mb-3">
+      {{ form.name.label_tag }}
+      {{ form.name }}
+      {% if form.name.errors %}
+        {% for error in form.name.errors %}
+        <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.email.label_tag }}
+      {{ form.email }}
+      {% if form.email.errors %}
+        {% for error in form.email.errors %}
+        <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.phone.label_tag }}
+      {{ form.phone }}
+      {% if form.phone.errors %}
+        {% for error in form.phone.errors %}
+        <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.role.label_tag }}
+      {{ form.role }}
+      {% if form.role.errors %}
+        {% for error in form.role.errors %}
+        <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    {% if not is_edit %}
+      <!-- Crear usuario: contraseña obligatoria -->
+      <div class="mb-3">
+        {{ form.password.label_tag }}
+        {{ form.password }}
+        {% if form.password.errors %}
+          {% for error in form.password.errors %}
+          <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.password2.label_tag }}
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+          {% for error in form.password2.errors %}
+          <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    {% else %}
+      <!-- Editar usuario: nueva contraseña opcional -->
+      <div class="mb-3">
+        {{ form.new_password.label_tag }}
+        {{ form.new_password }}
+        {% if form.new_password.errors %}
+          {% for error in form.new_password.errors %}
+          <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.new_password2.label_tag }}
+        {{ form.new_password2 }}
+        {% if form.new_password2.errors %}
+          {% for error in form.new_password2.errors %}
+          <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">
+      {% if is_edit %}Guardar cambios{% else %}Crear usuario{% endif %}
+    </button>
+    <a href="{% url 'admin_user_list' %}" class="btn btn-secondary ms-2">
+      Volver
+    </a>
+  </form>
+</div>
+{% endblock %}

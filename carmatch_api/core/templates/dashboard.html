@@ -1,33 +1,83 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% block title %}Dashboard | CarMatch{% endblock %}
+
 {% block content %}
 <div class="container py-4">
-  <h1 class="text-center mb-4">Bienvenido</h1>
+  <!-- Título con nombre del usuario -->
+  <h1 class="mb-4 text-center">
+    Bienvenido{% if user_name %}, {{ user_name }}{% endif %}
+  </h1>
+
+  <!-- Mini vistas: publicaciones recientes + top 5 ofertas -->
   <div class="row g-3">
-    <div class="col-12 col-md-6 col-lg-4">
+    <!-- Mis publicaciones recientes -->
+    <div class="col-12 col-lg-6">
       <div class="card h-100 shadow-sm">
+        <div class="card-header bg-light">
+          <strong>Mis publicaciones recientes</strong>
+        </div>
         <div class="card-body">
-          <h5 class="card-title">Repuestos</h5>
-          <p class="text-muted">Explora repuestos disponibles vía API.</p>
-          <a class="btn btn-primary" href="{% url 'repuestos_page' %}">Ver repuestos</a>
+          {% if listings %}
+            <ul class="list-group list-group-flush small">
+              {% for pub in listings %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-semibold">{{ pub.title }}</div>
+                    <div class="text-muted">
+                      {% if pub.category %}{{ pub.category.name }} · {% endif %}
+                      {{ pub.created_at|date:"d/m/Y H:i" }}
+                    </div>
+                  </div>
+                  <span class="badge bg-primary">
+                    {{ pub.price|floatformat:0 }} CLP
+                  </span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted small mb-0">
+              Todavía no has publicado nada. Ve a la sección <strong>Publicar</strong> del menú para crear tu primera publicación.
+            </p>
+          {% endif %}
         </div>
       </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-4">
+
+    <!-- Top 5 ofertas -->
+    <div class="col-12 col-lg-6">
       <div class="card h-100 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">Publicar</h5>
-          <p class="text-muted">Sube un nuevo producto/oferta.</p>
-          <button class="btn btn-outline-secondary" disabled>Próximamente</button>
+        <div class="card-header bg-light">
+          <strong>Top 5 ofertas recientes</strong>
         </div>
-      </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-4">
-      <div class="card h-100 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Agente AI</h5>
-          <p class="text-muted">Asistencia para compatibilidad y precios.</p>
-          <button class="btn btn-outline-secondary" disabled>Próximamente</button>
+          {% if top_offers %}
+            <ul class="list-group list-group-flush small">
+              {% for o in top_offers %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-semibold">
+                      {{ o.product.name }}
+                    </div>
+                    <div class="text-muted">
+                      {{ o.store.name }} · {{ o.created_at|date:"d/m/Y" }}
+                    </div>
+                  </div>
+                  <span class="badge bg-success">
+                    {% if o.latest_price %}
+                      {{ o.latest_price|floatformat:0 }} CLP
+                    {% else %}
+                      s/precio
+                    {% endif %}
+                  </span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted small mb-0">
+              No hay ofertas registradas todavía.
+            </p>
+          {% endif %}
         </div>
       </div>
     </div>

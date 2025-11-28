@@ -24,53 +24,62 @@
         background: #ffffff;
       }
     </style>
-    {% block head %}
 
-    {% endblock %}
+    {% block head %}{% endblock %}
   </head>
-  <body class="d-flex flex-column min-vh-100">
-    {% include 'banner.html' %}
-    <main class="content-wrapper">
-      {% block content %}
 
-      {% endblock %}
-      <script type="module">
-        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js'
-        
-        createChat({
-          webhookUrl: 'http://localhost:5678/webhook/9a35b1f8-83f1-470e-8ece-493c1fd380a9/chat',
-          webhookConfig: {
-            method: 'POST',
-            headers: {}
-          },
-          target: '#n8n-chat',
-          mode: 'window',
-        
-          // Estos deben coincidir con tu Trigger de n8n
-          chatInputKey: 'chatInput',
-          chatSessionKey: 'sessionId',
-        
-          loadPreviousSession: true,
-          metadata: {},
-          showWelcomeScreen: false,
-          defaultLanguage: 'es',
-        
-          initialMessages: ['¡Hola! 👋', 'Mi nombre es CarMatch AI. ¿En qué puedo ayudarte hoy? ¿Necesitas algún repuesto?'],
-        
-          i18n: {
-            es: {
-              title: '¡Hola! 👋',
-              subtitle: 'Háblame para que comencemos a comparar',
-              footer: '',
-              getStarted: 'Comenzar',
-              inputPlaceholder: 'Escribe tu consulta…'
-            }
-          },
-        
-          enableStreaming: false
-        })
-      </script>
+  <body class="d-flex flex-column min-vh-100">
+    {# Banner superior #}
+    {% include "banner.html" %}
+
+    {# Contenido de cada página #}
+    <main class="content-wrapper">
+      {% block content %}{% endblock %}
     </main>
-    {% include 'footer.html' %}
+
+    {# Contenedor del chat n8n (modo window igual funciona, pero lo dejamos) #}
+    <div id="n8n-chat"></div>
+
+    <script type="module">
+      import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js'
+
+      createChat({
+        webhookUrl: 'http://localhost:5678/webhook/9a35b1f8-83f1-470e-8ece-493c1fd380a9/chat',
+        webhookConfig: {
+          method: 'POST',
+          headers: {}
+        },
+        target: '#n8n-chat',
+        mode: 'window',
+
+        // Estos deben coincidir con tu Trigger de n8n
+        chatInputKey: 'chatInput',
+        chatSessionKey: 'sessionId',
+
+        loadPreviousSession: true,
+        metadata: {},
+        showWelcomeScreen: false,
+        defaultLanguage: 'es',
+
+        initialMessages: [
+          '¡Hola! 👋',
+          'Mi nombre es CarMatch AI. ¿En qué puedo ayudarte hoy? ¿Necesitas algún repuesto?'
+        ],
+
+        i18n: {
+          es: {
+            title: '¡Hola! 👋',
+            subtitle: 'Háblame para que comencemos a comparar',
+            footer: '',
+            getStarted: 'Comenzar',
+            inputPlaceholder: 'Escribe tu consulta…'
+          }
+        },
+
+        enableStreaming: false
+      })
+    </script>
+
+    {% include "footer.html" %}
   </body>
 </html>

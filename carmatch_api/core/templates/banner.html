@@ -9,41 +9,45 @@
     </button>
 
     <div class="collapse navbar-collapse" id="topbar">
-      {% with current=request.resolver_match.url_name|default:'' %}
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link {% if current == 'dashboard' %}active{% endif %}"
-             href="{% url 'dashboard' %}">Inicio</a>
+          <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+             href="{% url 'dashboard' %}">
+            Inicio
+          </a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link {% if current == 'repuestos_page' %}active{% endif %}"
-             href="{% url 'repuestos_page' %}">Repuestos</a>
+          <a class="nav-link"
+             href="{% url 'repuestos_page' %}">
+            Repuestos
+          </a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link {% if current == 'ofertas_page' %}active{% endif %}"
-             href="{% url 'ofertas_page' %}">Ofertas</a>
+          <a class="nav-link"
+             href="{% url 'ofertas_page' %}">
+            Ofertas
+          </a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link {% if current == 'user_listings' %}active{% endif %}"
-            href="{% url 'user_listings' %}">
+          <a class="nav-link {% if request.resolver_match.url_name == 'user_listings' %}active{% endif %}"
+             href="{% url 'user_listings' %}">
             Publicar
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'ai_chat' %}active{% endif %}"
-            href="{% url 'ai_chat' %}">Agente AI</a>
-        </li>
 
-                <!-- Administración: activo tanto en /admin/ como en /admin/fuentes/ -->
-        <li class="nav-item">
-          <a class="nav-link {% if current == 'admin_home' or current == 'admin_fuentes' %}active{% endif %}"
-             href="{% url 'admin_home' %}">Administración</a>
-        </li>
+        {# Solo admin y analista ven Administración #}
+        {% if request.session.user_role == "admin" or request.session.user_role == "analista" %}
+          <li class="nav-item">
+            <a class="nav-link"
+               href="{% url 'admin_home' %}">
+              Administración
+            </a>
+          </li>
+        {% endif %}
       </ul>
-      {% endwith %}
 
       <div class="d-flex align-items-center gap-2">
         <div class="rounded-circle d-inline-flex justify-content-center align-items-center"

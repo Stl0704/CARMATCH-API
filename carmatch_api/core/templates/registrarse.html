@@ -5,7 +5,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Registrarse | CarMatch</title>
+
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons para el ojo -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
   <style>
     body { background: #0f172a; }
     .card { border: 0; border-radius: 1rem; }
@@ -45,17 +50,35 @@
             {% endif %}
           </div>
 
+          <!-- Contraseña con ojo -->
           <div class="mb-3">
             <label class="form-label" for="{{ form.password.id_for_label }}">Contraseña</label>
-            {{ form.password }}
+            <div class="input-group">
+              {{ form.password }}
+              <button type="button"
+                      class="btn btn-outline-secondary"
+                      id="togglePassword"
+                      aria-label="Mostrar u ocultar contraseña">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
             {% if form.password.errors %}
               <div class="text-danger small">{{ form.password.errors.0 }}</div>
             {% endif %}
           </div>
 
+          <!-- Confirmar contraseña con ojo -->
           <div class="mb-3">
             <label class="form-label" for="{{ form.password2.id_for_label }}">Confirmar contraseña</label>
-            {{ form.password2 }}
+            <div class="input-group">
+              {{ form.password2 }}
+              <button type="button"
+                      class="btn btn-outline-secondary"
+                      id="togglePassword2"
+                      aria-label="Mostrar u ocultar confirmación de contraseña">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
             {% if form.password2.errors %}
               <div class="text-danger small">{{ form.password2.errors.0 }}</div>
             {% endif %}
@@ -71,5 +94,41 @@
     </div>
     <p class="text-center text-white-50 mt-3 small">© {{ now|date:"Y" }} CarMatch</p>
   </div>
+
+  <script>
+    (function() {
+      // Inputs reales que genera Django (id="id_password", etc.)
+      const passInput  = document.getElementById("{{ form.password.id_for_label }}");
+      const pass2Input = document.getElementById("{{ form.password2.id_for_label }}");
+
+      const btn1 = document.getElementById("togglePassword");
+      const btn2 = document.getElementById("togglePassword2");
+
+      function toggleField(input, btn) {
+        if (!input || !btn) return;
+        const icon = btn.querySelector("i");
+        const isPassword = input.getAttribute("type") === "password";
+
+        input.setAttribute("type", isPassword ? "text" : "password");
+
+        if (icon) {
+          icon.classList.toggle("bi-eye", !isPassword);
+          icon.classList.toggle("bi-eye-slash", isPassword);
+        }
+      }
+
+      if (btn1 && passInput) {
+        btn1.addEventListener("click", function() {
+          toggleField(passInput, btn1);
+        });
+      }
+
+      if (btn2 && pass2Input) {
+        btn2.addEventListener("click", function() {
+          toggleField(pass2Input, btn2);
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
