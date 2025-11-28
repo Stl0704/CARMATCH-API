@@ -39,28 +39,48 @@
     <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton"></div></div>
     <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton"></div></div>
   </div>
+
+  <!-- Paginador -->
+  <div class="d-flex align-items-center justify-content-between mt-3">
+    <div id="range" class="text-muted small"></div>
+    <div class="btn-group">
+      <button id="prev" class="btn btn-outline-secondary btn-sm" disabled>« Anterior</button>
+      <button id="next" class="btn btn-outline-secondary btn-sm" disabled>Siguiente »</button>
+    </div>
+  </div>
 </div>
 
 <script>
 (() => {
-  // Usa el basename que registraste en el router: basename="ofertas" -> 'ofertas-list'
-  const API_URL = "{% url 'ofertas-list' %}"; // genera /api/ofertas/
+  // Usa el mismo endpoint que Ofertas (ofertas-list /api/ofertas/)
+  const API_URL = "{% url 'ofertas-list' %}";
 
-  const grid  = document.getElementById("grid");
-  const state = document.getElementById("state");
-  const q     = document.getElementById("q");
-  const sort  = document.getElementById("sort");
+  const grid    = document.getElementById("grid");
+  const state   = document.getElementById("state");
+  const q       = document.getElementById("q");
+  const sort    = document.getElementById("sort");
+  const btnPrev = document.getElementById("prev");
+  const btnNext = document.getElementById("next");
+  const rangeEl = document.getElementById("range");
 
-  let DATA = []; // [{id, nombre, precio, tienda, url}]
+  let PAGE      = 1;
+  let COUNT     = 0;
+  let PAGE_SIZE = 20; // Debe coincidir con PAGE_SIZE de DRF
+  let NEXT_URL  = null;
+  let PREV_URL  = null;
 
   const money = (n) => {
     if (n === null || n === undefined || n === "") return "—";
     const num = Number(n);
     if (Number.isNaN(num)) return "—";
-    return num.toLocaleString("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
+    return num.toLocaleString("es-CL", {
+      style: "currency",
+      currency: "CLP",
+      maximumFractionDigits: 0
+    });
   };
 
-  const setState = (html='') => { state.innerHTML = html; };
+  const setState = (html = "") => { state.innerHTML = html; };
 
   const card = (item) => `
     <div class="card h-100 shadow-sm">
@@ -70,14 +90,14 @@
             <h5 class="card-title mb-1 line-clamp-2">
               <i class="bi bi-wrench-adjustable-circle me-2"></i>${item.nombre}
             </h5>
-            <div class="text-muted small">Tienda: ${item.tienda ?? '—'}</div>
+            <div class="text-muted small">Tienda: ${item.tienda ?? "—"}</div>
             <div class="text-muted small">ID oferta: ${item.id}</div>
           </div>
           <div class="fs-5 fw-semibold text-nowrap">${money(item.precio)}</div>
         </div>
       </div>
       <div class="card-footer bg-transparent border-0 pt-0 pb-3">
-        <a class="btn btn-primary btn-sm" href="${item.url ?? '#'}" target="_blank" rel="noopener">
+        <a class="btn btn-primary btn-sm" href="${item.url ?? "#"}" target="_blank" rel="noopener">
           <i class="bi bi-box-arrow-up-right me-1"></i> Ver detalle
         </a>
       </div>
@@ -88,6 +108,9 @@
     grid.innerHTML = "";
     if (!items.length) {
       setState('<div class="alert alert-warning mb-0"><i class="bi bi-emoji-neutral me-2"></i>Sin resultados.</div>');
+      rangeEl.textContent = "";
+      btnPrev.disabled = true;
+      btnNext.disabled = true;
       return;
     }
     setState("");
@@ -99,51 +122,75 @@
     }
   }
 
-  function applyFilters() {
-    const term = q.value.trim().toLowerCase();
-    let items = !term ? [...DATA] : DATA.filter(x => (x.nombre || "").toLowerCase().includes(term));
-
+  function orderingParam() {
     switch (sort.value) {
-      case "precio_asc":  items.sort((a,b)=> (Number(a.precio) || 0) - (Number(b.precio) || 0)); break;
-      case "precio_desc": items.sort((a,b)=> (Number(b.precio) || 0) - (Number(a.precio) || 0)); break;
-      case "nombre_asc":  items.sort((a,b)=> String(a.nombre||"").localeCompare(String(b.nombre||""), 'es')); break;
-      case "nombre_desc": items.sort((a,b)=> String(b.nombre||"").localeCompare(String(a.nombre||""), 'es')); break;
-      default: break;
+      case "precio_asc":  return "latest_price";
+      case "precio_desc": return "-latest_price";
+      case "nombre_asc":  return "product__name";
+      case "nombre_desc": return "-product__name";
+      default: return ""; // relevancia / orden por defecto del API
     }
-    render(items);
   }
 
-  async function load() {
+  function buildUrl(page = 1) {
+    const params = new URLSearchParams();
+    params.set("page", page);
+
+    const s = q.value.trim();
+    // Aquí usamos DRF SearchFilter: buscaría en campos configurados (ej: product__name)
+    if (s) params.set("search", s);
+
+    const ord = orderingParam();
+    if (ord) params.set("ordering", ord);
+
+    return `${API_URL}?${params.toString()}`;
+  }
+
+  async function load(page = 1, urlOverride = null) {
     try {
       setState('<div class="alert alert-secondary mb-0"><span class="spinner-border spinner-border-sm me-2"></span>Cargando repuestos…</div>');
-      const res = await fetch(API_URL, { headers: { "Accept": "application/json" } });
+      const url = urlOverride || buildUrl(page);
+      const res = await fetch(url, { headers: { "Accept": "application/json" } });
       if (!res.ok) throw new Error("Error al consultar el API");
 
-      const data = await res.json();
-      const results = Array.isArray(data) ? data : (data.results || []); // soporta paginación DRF
+      const data    = await res.json();
+      const results = data.results || [];
+      COUNT   = data.count ?? results.length;
+      PAGE    = page;
+      NEXT_URL = data.next;
+      PREV_URL = data.previous;
 
-      // Normaliza OfferProduct -> tu UI
-      // Espera que el serializer exponga: product.name, store.name, url, latest_price
-      DATA = results.map(o => ({
-        id: o.id,
+      const start = (PAGE - 1) * PAGE_SIZE + 1;
+      const end   = Math.min(PAGE * PAGE_SIZE, COUNT);
+      rangeEl.textContent = COUNT ? `Mostrando ${start}–${end} de ${COUNT}` : "";
+
+      btnPrev.disabled = !PREV_URL;
+      btnNext.disabled = !NEXT_URL;
+
+      // Mapeamos OfferProduct -> UI de "Repuestos"
+      const items = results.map(o => ({
+        id:     o.id,
         nombre: o.product?.name ?? "(sin nombre)",
         precio: o.latest_price ?? null,
         tienda: o.store?.name ?? null,
-        url: o.url ?? null,
+        url:    o.url ?? null,
       }));
 
-      setState("");
-      applyFilters();
+      render(items);
     } catch (err) {
       console.error(err);
       setState('<div class="alert alert-danger mb-0"><i class="bi bi-x-octagon me-2"></i>No se pudieron cargar los repuestos.</div>');
-      grid.innerHTML = "";
     }
   }
 
-  q.addEventListener("input", applyFilters);
-  sort.addEventListener("change", applyFilters);
-  load();
+  // Eventos
+  q.addEventListener("input", () => load(1));          // nuevo término de búsqueda → volver a página 1
+  sort.addEventListener("change", () => load(PAGE));   // cambiar orden manteniendo página si se puede
+  btnPrev.addEventListener("click", () => PREV_URL ? load(PAGE - 1, PREV_URL) : null);
+  btnNext.addEventListener("click", () => NEXT_URL ? load(PAGE + 1, NEXT_URL) : null);
+
+  // Carga inicial
+  load(1);
 })();
 </script>
 {% endblock %}
