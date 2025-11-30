@@ -1,0 +1,175 @@
+/* dark_theme.css */
+/* Import Google Font Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+:root {
+  --bg-color: #0a0a0a;
+  /* very dark */
+  --text-color: #f0f0f0;
+  /* lighter text for better contrast */
+  --text-muted: #b0b0b0;
+  /* lighter muted text */
+  --primary-accent: #00ffff;
+  /* electric blue */
+  --secondary-accent: #008b8b;
+  --border-radius: 0.5rem;
+  --transition-speed: 0.3s;
+
+  /* n8n Chatbot Variables Override - Global Scope */
+  --chat--color-primary: #00ffff !important;
+  --chat--color-secondary: #2a2a2a !important;
+  --chat--color-background: #1a1a1a !important;
+  --chat--color-font: #f0f0f0 !important;
+  --chat--color-input: #2a2a2a !important;
+  --chat--color-placeholder: #888888 !important;
+  --chat--header-background: #0a0a0a !important;
+  --chat--header-font: #ffffff !important;
+  --chat--message-font: #f0f0f0 !important;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+
+  /* Re-declare for n8n widget inheritance */
+  --chat--color-primary: #00ffff;
+  --chat--color-secondary: #2a2a2a;
+  --chat--color-background: #1a1a1a;
+  --chat--color-font: #f0f0f0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  color: #ffffff !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Force contrast in cards */
+.card-title,
+.card-header {
+  color: #ffffff !important;
+}
+
+.card-text,
+.card-body {
+  color: #e0e0e0;
+}
+
+a {
+  color: var(--primary-accent);
+  text-decoration: none;
+  transition: color var(--transition-speed);
+}
+
+a:hover {
+  color: var(--secondary-accent);
+}
+
+.btn-primary {
+  background-color: var(--primary-accent) !important;
+  border-color: var(--primary-accent) !important;
+  color: #000 !important;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-accent) !important;
+  transform: scale(1.05);
+}
+
+.card {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  /* subtle border */
+  border-radius: var(--border-radius);
+  transition: box-shadow var(--transition-speed), transform var(--transition-speed);
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+  /* start hidden for animation */
+}
+
+.card:hover {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  border-color: var(--primary-accent);
+  transform: translateY(-5px);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animations for cards if possible (requires nth-child logic or JS, 
+   but generic delay can be applied via CSS for simplicity or left as is) */
+.col-12:nth-child(1) .card {
+  animation-delay: 0.1s;
+}
+
+.col-12:nth-child(2) .card {
+  animation-delay: 0.2s;
+}
+
+.col-12:nth-child(3) .card {
+  animation-delay: 0.3s;
+}
+
+.col-12:nth-child(4) .card {
+  animation-delay: 0.4s;
+}
+
+.col-12:nth-child(5) .card {
+  animation-delay: 0.5s;
+}
+
+.col-12:nth-child(6) .card {
+  animation-delay: 0.6s;
+}
+
+/* Simple fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn var(--transition-speed) ease-in-out;
+}
+
+/* Form styling */
+.form-control {
+  background-color: #2a2a2a;
+  border: 1px solid var(--primary-accent);
+  color: var(--text-color);
+}
+
+.form-control:focus {
+  border-color: var(--secondary-accent);
+  box-shadow: 0 0 5px var(--primary-accent);
+}

@@ -6,24 +6,7 @@
 
 {% block head %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-<style>
-  .card:hover {
-    transform: translateY(-2px);
-    transition: transform .15s ease;
-  }
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .listing-photo {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: .5rem .5rem 0 0;
-  }
-</style>
+
 {% endblock %}
 
 {% block content %}
@@ -39,13 +22,13 @@
 
   <!-- Mensajes (éxito / error) -->
   {% if messages %}
-    <div class="mb-3">
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} mb-2">
-          {{ message }}
-        </div>
-      {% endfor %}
+  <div class="mb-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} mb-2">
+      {{ message }}
     </div>
+    {% endfor %}
+  </div>
   {% endif %}
 
   <!-- Formulario nueva publicación -->
@@ -61,7 +44,7 @@
           <label class="form-label">{{ form.title.label }}</label>
           {{ form.title }}
           {% if form.title.errors %}
-            <div class="text-danger small">{{ form.title.errors.0 }}</div>
+          <div class="text-danger small">{{ form.title.errors.0 }}</div>
           {% endif %}
         </div>
 
@@ -69,7 +52,7 @@
           <label class="form-label">{{ form.category.label }}</label>
           {{ form.category }}
           {% if form.category.errors %}
-            <div class="text-danger small">{{ form.category.errors.0 }}</div>
+          <div class="text-danger small">{{ form.category.errors.0 }}</div>
           {% endif %}
         </div>
 
@@ -77,7 +60,7 @@
           <label class="form-label">{{ form.description.label }}</label>
           {{ form.description }}
           {% if form.description.errors %}
-            <div class="text-danger small">{{ form.description.errors.0 }}</div>
+          <div class="text-danger small">{{ form.description.errors.0 }}</div>
           {% endif %}
         </div>
 
@@ -85,7 +68,7 @@
           <label class="form-label">{{ form.stock.label }}</label>
           {{ form.stock }}
           {% if form.stock.errors %}
-            <div class="text-danger small">{{ form.stock.errors.0 }}</div>
+          <div class="text-danger small">{{ form.stock.errors.0 }}</div>
           {% endif %}
         </div>
 
@@ -96,7 +79,7 @@
             {{ form.price }}
           </div>
           {% if form.price.errors %}
-            <div class="text-danger small">{{ form.price.errors.0 }}</div>
+          <div class="text-danger small">{{ form.price.errors.0 }}</div>
           {% endif %}
         </div>
 
@@ -104,7 +87,7 @@
           <label class="form-label">{{ form.photo.label }}</label>
           {{ form.photo }}
           {% if form.photo.errors %}
-            <div class="text-danger small">{{ form.photo.errors.0 }}</div>
+          <div class="text-danger small">{{ form.photo.errors.0 }}</div>
           {% endif %}
         </div>
 
@@ -123,59 +106,60 @@
   </h2>
 
   {% if publicaciones %}
-    <div class="row g-3">
-      {% for pub in publicaciones %}
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm">
-            {% if pub.photo %}
-              <img src="{{ pub.photo.url }}" alt="{{ pub.title }}" class="listing-photo">
+  <div class="row g-3">
+    {% for pub in publicaciones %}
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm">
+        {% if pub.photo %}
+        <img src="{{ pub.photo.url }}" alt="{{ pub.title }}" class="listing-photo">
+        {% else %}
+        <div class="d-flex align-items-center justify-content-center bg-light listing-photo">
+          <i class="bi bi-image text-muted" style="font-size: 2.5rem;"></i>
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title mb-1 line-clamp-2">
+            <i class="bi bi-tools me-1"></i>{{ pub.title }}
+          </h5>
+
+          <div class="text-muted small mb-1">
+            {% if pub.category %}
+            {{ pub.category.name }}
             {% else %}
-              <div class="d-flex align-items-center justify-content-center bg-light listing-photo">
-                <i class="bi bi-image text-muted" style="font-size: 2.5rem;"></i>
-              </div>
+            Sin categoría
             {% endif %}
-            <div class="card-body">
-              <h5 class="card-title mb-1 line-clamp-2">
-                <i class="bi bi-tools me-1"></i>{{ pub.title }}
-              </h5>
+          </div>
 
-              <div class="text-muted small mb-1">
-                {% if pub.category %}
-                  {{ pub.category.name }}
-                {% else %}
-                  Sin categoría
-                {% endif %}
-              </div>
+          <p class="card-text small mb-2">
+            {{ pub.description|truncatechars:120 }}
+          </p>
 
-              <p class="card-text small mb-2">
-                {{ pub.description|truncatechars:120 }}
-              </p>
-
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="badge bg-secondary">
-                  Stock: {{ pub.stock }}
-                </span>
-                <span class="fw-semibold">
-                  {{ pub.price|floatformat:0 }} CLP
-                </span>
-              </div>
-            </div>
-            <div class="card-footer bg-transparent border-0 pt-0 pb-3 d-flex justify-content-between align-items-center small text-muted">
-              <span>
-                <i class="bi bi-clock-history me-1"></i>
-                {{ pub.created_at|date:"d/m/Y H:i" }}
-              </span>
-              <!-- futuro: botones editar / eliminar -->
-            </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="badge bg-secondary">
+              Stock: {{ pub.stock }}
+            </span>
+            <span class="fw-semibold">
+              {{ pub.price|floatformat:0 }} CLP
+            </span>
           </div>
         </div>
-      {% endfor %}
+        <div
+          class="card-footer bg-transparent border-0 pt-0 pb-3 d-flex justify-content-between align-items-center small text-muted">
+          <span>
+            <i class="bi bi-clock-history me-1"></i>
+            {{ pub.created_at|date:"d/m/Y H:i" }}
+          </span>
+          <!-- futuro: botones editar / eliminar -->
+        </div>
+      </div>
     </div>
+    {% endfor %}
+  </div>
   {% else %}
-    <div class="alert alert-warning">
-      <i class="bi bi-emoji-neutral me-2"></i>
-      Aún no has creado ninguna publicación. ¡Empieza con el formulario de arriba!
-    </div>
+  <div class="alert alert-warning">
+    <i class="bi bi-emoji-neutral me-2"></i>
+    Aún no has creado ninguna publicación. ¡Empieza con el formulario de arriba!
+  </div>
   {% endif %}
 </div>
 {% endblock %}
