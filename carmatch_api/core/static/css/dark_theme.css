@@ -3,28 +3,52 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 :root {
+  /* Colores base de la página */
   --bg-color: #0a0a0a;
-  /* very dark */
   --text-color: #f0f0f0;
-  /* lighter text for better contrast */
   --text-muted: #b0b0b0;
-  /* lighter muted text */
   --primary-accent: #00ffff;
-  /* electric blue */
   --secondary-accent: #008b8b;
   --border-radius: 0.5rem;
   --transition-speed: 0.3s;
 
-  /* n8n Chatbot Variables Override - Global Scope */
-  --chat--color-primary: #00ffff !important;
-  --chat--color-secondary: #2a2a2a !important;
-  --chat--color-background: #1a1a1a !important;
-  --chat--color-font: #f0f0f0 !important;
-  --chat--color-input: #2a2a2a !important;
-  --chat--color-placeholder: #888888 !important;
-  --chat--header-background: #0a0a0a !important;
-  --chat--header-font: #ffffff !important;
-  --chat--message-font: #f0f0f0 !important;
+  /* === Variables que SÍ usa n8n/chat === */
+  --chat--color-primary: #00ffff;
+  --chat--color-secondary: #2a2a2a;
+  --chat--color-white: #1a1a1a;
+  --chat--color-light: #111827;
+  --chat--color-dark: #020617;
+  --chat--color-muted: #888888;
+
+  --chat--border-radius: 0.75rem;
+  --chat--font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --chat--window--width: 380px;
+  --chat--window--height: 600px;
+  --chat--window--border-radius: var(--chat--border-radius);
+
+  --chat--header--background: #020617;
+  --chat--header--color: #e5e7eb;
+  --chat--heading--font-size: 1.1rem;
+
+  --chat--message--user--background: #00ffff;
+  --chat--message--user--color: #000000;
+  --chat--message--bot--background: #111827;
+  --chat--message--bot--color: #f0f0f0;
+
+  --chat--input--background: #020617;
+  --chat--input--text-color: #f0f0f0;
+  --chat--input--border: 1px solid #333333;
+
+  --chat--button--background: transparent;
+  --chat--button--color: #00ffff;
+  --chat--button--hover--background: rgba(0, 255, 255, 0.1);
+
+  /* Launcher Button (Toggle) */
+  --chat--toggle--background: #00ffff;
+  --chat--toggle--color: #ffffff;
+  --chat--toggle--hover--background: #00cccc;
+  --chat--toggle--hover--color: #ffffff;
 }
 
 body {
@@ -67,6 +91,18 @@ h6,
 .card-text,
 .card-body {
   color: #e0e0e0;
+}
+
+/* Navbar Styling */
+.navbar-dark .navbar-nav .nav-link {
+  color: var(--primary-accent) !important;
+  font-weight: 500;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active {
+  color: #ffffff !important;
+  text-shadow: 0 0 5px var(--primary-accent);
 }
 
 a {
@@ -172,4 +208,46 @@ a:hover {
 .form-control:focus {
   border-color: var(--secondary-accent);
   box-shadow: 0 0 5px var(--primary-accent);
+}
+
+/* Dashboard Specific Styles */
+.dashboard-header {
+  background-color: #000000 !important;
+  color: var(--primary-accent) !important;
+  border-bottom: 1px solid var(--primary-accent) !important;
+  border-top-left-radius: var(--border-radius);
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+}
+
+/* Independent Login Card Styles */
+.login-card {
+  background-color: #000000;
+  border: 1px solid var(--primary-accent);
+  border-radius: var(--border-radius);
+  transition: box-shadow var(--transition-speed), transform var(--transition-speed);
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.login-card:hover {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  border-color: var(--primary-accent);
+  transform: translateY(-5px);
+}
+
+/* Independent Register Card Styles */
+.register-card {
+  background-color: #000000;
+  border: 1px solid var(--primary-accent);
+  border-radius: var(--border-radius);
+  transition: box-shadow var(--transition-speed), transform var(--transition-speed);
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.register-card:hover {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  border-color: var(--primary-accent);
+  transform: translateY(-5px);
 }

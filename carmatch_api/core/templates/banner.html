@@ -1,10 +1,12 @@
 {% load static %}
-<header class="navbar navbar-expand-lg navbar-dark" style="background:#0b1221;">
+<header class="navbar navbar-expand-lg navbar-dark" style="background:#000000;">
   <div class="container-fluid px-3">
-    <a class="navbar-brand fw-semibold" href="{% url 'dashboard' %}">CarMatch</a>
+    <a class="navbar-brand fw-semibold" href="{% url 'dashboard' %}">
+      <img src="{% static 'img/logo_carmatch.png' %}" alt="CarMatch" style="height: 40px;">
+    </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topbar"
-            aria-controls="topbar" aria-expanded="false" aria-label="Toggle navigation">
+      aria-controls="topbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -12,53 +14,50 @@
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
-             href="{% url 'dashboard' %}">
+            href="{% url 'dashboard' %}">
             Inicio
           </a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link"
-             href="{% url 'repuestos_page' %}">
+          <a class="nav-link" href="{% url 'repuestos_page' %}">
             Repuestos
           </a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link"
-             href="{% url 'ofertas_page' %}">
+          <a class="nav-link" href="{% url 'ofertas_page' %}">
             Ofertas
           </a>
         </li>
 
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'user_listings' %}active{% endif %}"
-             href="{% url 'user_listings' %}">
+            href="{% url 'user_listings' %}">
             Publicar
           </a>
         </li>
 
         {# Solo admin y analista ven Administración #}
         {% if request.session.user_role == "admin" or request.session.user_role == "analista" %}
-          <li class="nav-item">
-            <a class="nav-link"
-               href="{% url 'admin_home' %}">
-              Administración
-            </a>
-          </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'admin_home' %}">
+            Administración
+          </a>
+        </li>
         {% endif %}
       </ul>
 
       <div class="d-flex align-items-center gap-2">
         <div class="rounded-circle d-inline-flex justify-content-center align-items-center"
-             style="width:36px;height:36px;background:#f3f4f6;color:#111827;font-weight:700;">
+          style="width:36px;height:36px;background:#f3f4f6;color:#111827;font-weight:700;">
           {{ request.session.user_name|default:"?"|first|upper }}
         </div>
         <span class="text-white-50 small">{{ request.session.user_name|default:"Invitado" }}</span>
         {% if request.session.user_id %}
-          <a class="btn btn-outline-light btn-sm ms-2" href="{% url 'logout' %}">Cerrar sesión</a>
+        <a class="btn btn-outline-light btn-sm ms-2" href="{% url 'logout' %}">Cerrar sesión</a>
         {% else %}
-          <a class="btn btn-primary btn-sm ms-2" href="{% url 'login' %}">Iniciar sesión</a>
+        <a class="btn btn-primary btn-sm ms-2" href="{% url 'login' %}">Iniciar sesión</a>
         {% endif %}
       </div>
     </div>

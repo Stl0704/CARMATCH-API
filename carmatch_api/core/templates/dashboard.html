@@ -14,31 +14,32 @@
     <!-- Mis publicaciones recientes -->
     <div class="col-12 col-lg-6">
       <div class="card h-100 shadow-sm">
-        <div class="card-header bg-light">
+        <div class="card-header dashboard-header">
           <strong>Mis publicaciones recientes</strong>
         </div>
         <div class="card-body">
           {% if listings %}
-            <ul class="list-group list-group-flush small">
-              {% for pub in listings %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <div>
-                    <div class="fw-semibold">{{ pub.title }}</div>
-                    <div class="text-muted">
-                      {% if pub.category %}{{ pub.category.name }} · {% endif %}
-                      {{ pub.created_at|date:"d/m/Y H:i" }}
-                    </div>
-                  </div>
-                  <span class="badge bg-primary">
-                    {{ pub.price|floatformat:0 }} CLP
-                  </span>
-                </li>
-              {% endfor %}
-            </ul>
+          <ul class="list-group list-group-flush small">
+            {% for pub in listings %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold">{{ pub.title }}</div>
+                <div class="text-muted">
+                  {% if pub.category %}{{ pub.category.name }} · {% endif %}
+                  {{ pub.created_at|date:"d/m/Y H:i" }}
+                </div>
+              </div>
+              <span class="badge bg-primary">
+                {{ pub.price|floatformat:0 }} CLP
+              </span>
+            </li>
+            {% endfor %}
+          </ul>
           {% else %}
-            <p class="text-muted small mb-0">
-              Todavía no has publicado nada. Ve a la sección <strong>Publicar</strong> del menú para crear tu primera publicación.
-            </p>
+          <p class="text-muted small mb-0">
+            Todavía no has publicado nada. Ve a la sección <strong>Publicar</strong> del menú para crear tu primera
+            publicación.
+          </p>
           {% endif %}
         </div>
       </div>
@@ -47,36 +48,36 @@
     <!-- Top 5 ofertas -->
     <div class="col-12 col-lg-6">
       <div class="card h-100 shadow-sm">
-        <div class="card-header bg-light">
+        <div class="card-header dashboard-header">
           <strong>Top 5 ofertas recientes</strong>
         </div>
         <div class="card-body">
           {% if top_offers %}
-            <ul class="list-group list-group-flush small">
-              {% for o in top_offers %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <div>
-                    <div class="fw-semibold">
-                      {{ o.product.name }}
-                    </div>
-                    <div class="text-muted">
-                      {{ o.store.name }} · {{ o.created_at|date:"d/m/Y" }}
-                    </div>
-                  </div>
-                  <span class="badge bg-success">
-                    {% if o.latest_price %}
-                      {{ o.latest_price|floatformat:0 }} CLP
-                    {% else %}
-                      s/precio
-                    {% endif %}
-                  </span>
-                </li>
-              {% endfor %}
-            </ul>
+          <ul class="list-group list-group-flush small">
+            {% for o in top_offers %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold">
+                  {{ o.product.name }}
+                </div>
+                <div class="text-muted">
+                  {{ o.store.name }} · {{ o.created_at|date:"d/m/Y" }}
+                </div>
+              </div>
+              <span class="badge bg-success">
+                {% if o.latest_price %}
+                {{ o.latest_price|floatformat:0 }} CLP
+                {% else %}
+                s/precio
+                {% endif %}
+              </span>
+            </li>
+            {% endfor %}
+          </ul>
           {% else %}
-            <p class="text-muted small mb-0">
-              No hay ofertas registradas todavía.
-            </p>
+          <p class="text-muted small mb-0">
+            No hay ofertas registradas todavía.
+          </p>
           {% endif %}
         </div>
       </div>
