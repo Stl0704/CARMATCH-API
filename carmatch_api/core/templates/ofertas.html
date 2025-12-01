@@ -3,7 +3,6 @@
 
 {% block head %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
 {% endblock %}
 
 {% block content %}
@@ -42,8 +41,9 @@
   <!-- Paginador -->
   <div class="d-flex align-items-center justify-content-between mt-3">
     <div id="range" class="text-muted small"></div>
-    <div class="btn-group">
+    <div class="btn-group align-items-stretch">
       <button id="prev" class="btn btn-outline-secondary btn-sm" disabled>« Anterior</button>
+      <div id="pages" class="mx-1 d-flex"></div>
       <button id="next" class="btn btn-outline-secondary btn-sm" disabled>Siguiente »</button>
     </div>
   </div>
@@ -61,6 +61,7 @@
     const btnPrev = document.getElementById("prev");
     const btnNext = document.getElementById("next");
     const rangeEl = document.getElementById("range");
+    const pagesEl = document.getElementById("pages");
 
     let PAGE = 1;
     let COUNT = 0;
@@ -109,6 +110,7 @@
         rangeEl.textContent = "";
         btnPrev.disabled = true;
         btnNext.disabled = true;
+        pagesEl.innerHTML = "";
         return;
       }
       setState("");
@@ -140,6 +142,44 @@
       return `${API_URL}?${params.toString()}`;
     }
 
+    function renderPagination() {
+      const totalPages = Math.ceil(COUNT / PAGE_SIZE);
+
+      if (!totalPages || totalPages === 1) {
+        pagesEl.innerHTML = "";
+        return;
+      }
+
+      const maxPagesToShow = 5; // ventana de páginas
+      let start = Math.max(1, PAGE - 2);
+      let end = Math.min(totalPages, start + maxPagesToShow - 1);
+      start = Math.max(1, end - maxPagesToShow + 1);
+
+      let html = "";
+      for (let i = start; i <= end; i++) {
+        html += `
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm page-btn ${i === PAGE ? "active" : ""}"
+            data-page="${i}"
+          >
+            ${i}
+          </button>
+        `;
+      }
+
+      pagesEl.innerHTML = html;
+
+      pagesEl.querySelectorAll(".page-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetPage = Number(btn.dataset.page);
+          if (!Number.isNaN(targetPage) && targetPage !== PAGE) {
+            load(targetPage);
+          }
+        });
+      });
+    }
+
     async function load(page = 1, urlOverride = null) {
       try {
         setState('<div class="alert alert-secondary mb-0"><span class="spinner-border spinner-border-sm me-2"></span>Cargando…</div>');
@@ -160,6 +200,8 @@
 
         btnPrev.disabled = !PREV_URL;
         btnNext.disabled = !NEXT_URL;
+
+        renderPagination();
 
         const items = results.map(o => ({
           id: o.id,

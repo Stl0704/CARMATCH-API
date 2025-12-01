@@ -295,7 +295,16 @@ class OfferProductViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['store', 'product', 'product__brand', 'product__category']
     search_fields = ['product__name', 'product__sku', 'store__name']
-    ordering_fields = ['created_at']
+
+    # 👇 aquí la magia del orden
+    ordering_fields = [
+        'created_at',      # por si quieres ordenar por fecha
+        'latest_price',    # precio anotado desde PriceHistorical
+        'product__name',   # nombre del producto
+    ]
+
+    # opcional: orden por defecto cuando eliges "Relevancia"
+    ordering = ['-created_at']
 
 
 # =============== ADMIN: PÁGINAS HTML GENERALES ===============
