@@ -208,6 +208,9 @@ a:hover {
 .form-control:focus {
   border-color: var(--secondary-accent);
   box-shadow: 0 0 5px var(--primary-accent);
+  background-color: #2a2a2a;
+  /* Keep dark background on focus */
+  color: var(--text-color);
 }
 
 /* Dashboard Specific Styles */
@@ -250,4 +253,60 @@ a:hover {
   box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
   border-color: var(--primary-accent);
   transform: translateY(-5px);
+}
+
+/* Table Styling */
+.table {
+  --bs-table-color: var(--text-color);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: #333;
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+  --bs-table-striped-color: var(--text-color);
+  --bs-table-active-bg: rgba(255, 255, 255, 0.1);
+  --bs-table-active-color: var(--text-color);
+  --bs-table-hover-bg: rgba(0, 255, 255, 0.1);
+  --bs-table-hover-color: var(--text-color);
+
+  color: var(--text-color);
+  border-color: #333;
+}
+
+.table> :not(caption)>*>* {
+  background-color: transparent;
+  color: var(--text-color);
+  border-bottom-color: #333;
+}
+
+.table thead th {
+  color: var(--primary-accent);
+  border-bottom: 2px solid var(--primary-accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd)>* {
+  box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.05);
+  color: var(--text-color);
+}
+
+.table-hover>tbody>tr:hover>* {
+  box-shadow: inset 0 0 0 9999px rgba(0, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Admin Action Buttons */
+.btn-admin-action {
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  color: #e0e0e0 !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-admin-action:hover {
+  border-color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }

@@ -1,12 +1,12 @@
 (() => {
-  const API_LIST   = "/api/n8n/flows/";
+  const API_LIST = "/api/n8n/flows/";
   const API_TOGGLE = (id) => `/api/n8n/flows/${id}/toggle/`;
   const API_RUNNOW = (id) => `/api/n8n/flows/${id}/run-now/`; // requiere endpoint por flujo
 
   const state = document.getElementById('state');
-  const rows  = document.getElementById('rows');
+  const rows = document.getElementById('rows');
 
-  const setState = (html='') => state.innerHTML = html;
+  const setState = (html = '') => state.innerHTML = html;
 
   // CSRF (por si proteges los POST)
   function getCookie(name) {
@@ -23,10 +23,10 @@
 
   function row(flow) {
     const hora = flow.schedule_time || '—';
-    const freq = flow.frequency    || '—';
+    const freq = flow.frequency || '—';
     const runBtn = flow.has_webhook
-      ? `<button class="btn btn-outline-secondary btn-sm" data-action="run">Ejecutar ahora</button>`
-      : `<button class="btn btn-outline-secondary btn-sm" disabled title="Sin webhook configurado">Ejecutar ahora</button>`;
+      ? `<button class="btn btn-outline-secondary btn-sm btn-admin-action" data-action="run">Ejecutar ahora</button>`
+      : `<button class="btn btn-outline-secondary btn-sm btn-admin-action" disabled title="Sin webhook configurado">Ejecutar ahora</button>`;
 
     return `
       <tr data-id="${flow.id}">
@@ -43,10 +43,10 @@
         <td class="status">${badge(!!flow.enabled)}</td>
         <td class="text-end">
           <div class="btn-group">
-            <button class="btn btn-outline-secondary btn-sm" data-action="toggle">
+            <button class="btn btn-outline-secondary btn-sm btn-admin-action" data-action="toggle">
               ${flow.enabled ? 'Desactivar' : 'Activar'}
             </button>
-            <a class="btn btn-outline-primary btn-sm" href="${flow.n8n_url || '#'}" target="_blank" rel="noopener">Editar flujo</a>
+            <a class="btn btn-outline-primary btn-sm btn-admin-action" href="${flow.n8n_url || '#'}" target="_blank" rel="noopener">Editar flujo</a>
             ${runBtn}
           </div>
         </td>
@@ -66,7 +66,7 @@
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              ...(CSRF ? {'X-CSRFToken': CSRF} : {})
+              ...(CSRF ? { 'X-CSRFToken': CSRF } : {})
             },
             body: JSON.stringify({})
           });
@@ -83,7 +83,7 @@
           setState('<div class="alert alert-danger mb-0"><i class="bi bi-x-octagon me-2"></i>Error al cambiar estado.</div>');
         } finally {
           btn.disabled = false;
-          setTimeout(()=> setState(''), 1600);
+          setTimeout(() => setState(''), 1600);
         }
       });
     });
@@ -100,9 +100,9 @@
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              ...(CSRF ? {'X-CSRFToken': CSRF} : {})
+              ...(CSRF ? { 'X-CSRFToken': CSRF } : {})
             },
-            body: JSON.stringify({source: 'admin'})
+            body: JSON.stringify({ source: 'admin' })
           });
           const data = await res.json();
           if (!res.ok || !data.ok) throw new Error(data.error || 'run failed');
@@ -112,7 +112,7 @@
           setState('<div class="alert alert-danger mb-0">No se pudo ejecutar (define webhook en .env).</div>');
         } finally {
           btn.disabled = false;
-          setTimeout(()=> setState(''), 1600);
+          setTimeout(() => setState(''), 1600);
         }
       });
     });
@@ -121,7 +121,7 @@
   async function load() {
     try {
       setState('<div class="alert alert-secondary mb-0"><span class="spinner-border spinner-border-sm me-2"></span>Cargando flujos…</div>');
-      const res = await fetch(API_LIST, {headers: {"Accept": "application/json"}});
+      const res = await fetch(API_LIST, { headers: { "Accept": "application/json" } });
       if (!res.ok) throw new Error('error api');
       const flows = await res.json();
       rows.innerHTML = (flows && flows.length) ? flows.map(row).join('') : '<tr><td colspan="7">No hay flujos configurados.</td></tr>';
